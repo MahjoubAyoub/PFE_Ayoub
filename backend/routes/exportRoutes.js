@@ -4,7 +4,7 @@ const auth = require('../middleware/authMiddleware');
 const exportController = require('../controllers/exportController');
 
 // All routes require authentication
-router.use(auth);
+router.use(auth.protect);
 
 router.post('/design/:designId/image', exportController.exportAsImage);
 router.post('/design/:designId/pdf', exportController.exportAsPDF);

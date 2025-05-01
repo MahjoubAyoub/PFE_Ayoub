@@ -4,7 +4,7 @@ const auth = require('../middleware/authMiddleware');
 const designController = require('../controllers/designController');
 
 // All routes require authentication
-router.use(auth);
+router.use(auth.protect);
 
 router.get('/', designController.getUserDesigns);
 router.post('/', designController.createDesign);

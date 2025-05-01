@@ -4,7 +4,7 @@ const auth = require('../middleware/authMiddleware');
 const templateController = require('../controllers/templateController');
 
 // All routes require authentication
-router.use(auth);
+router.use(auth.protect);
 
 router.get('/', templateController.getTemplates);
 router.post('/', templateController.createTemplate);

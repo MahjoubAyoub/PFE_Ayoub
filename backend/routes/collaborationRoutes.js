@@ -4,7 +4,7 @@ const auth = require('../middleware/authMiddleware');
 const collaborationController = require('../controllers/collaborationController');
 
 // All routes require authentication
-router.use(auth);
+router.use(auth.protect);
 
 router.get('/project/:projectId/collaborators', collaborationController.getCollaborators);
 router.post('/project/:projectId/collaborators', collaborationController.addCollaborator);

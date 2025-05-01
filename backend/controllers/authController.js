@@ -133,6 +133,9 @@ exports.login = async (req, res) => {
         role: user.role
       }
     });
+    console.log('User logged in successfully:', user._id);
+    console.log('Token generated:', token);
+    console.log('User role:', user.role);
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });

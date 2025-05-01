@@ -4,7 +4,7 @@ const auth = require('../middleware/authMiddleware');
 const aiController = require('../controllers/aiController');
 
 // All routes require authentication
-router.use(auth);
+router.use(auth.protect);
 
 router.post('/generate-design', aiController.generateDesign);
 router.post('/enhance-design', aiController.enhanceDesign);

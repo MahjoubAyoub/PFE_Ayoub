@@ -3,6 +3,7 @@
 import type React from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { UserNav } from "@/components/user-nav"
 import { Logo } from "@/components/logo"
@@ -12,16 +13,17 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+
 
   if (status === "loading") {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   if (!session) {
-    router.push("/login")
-    return null
+    return null; // Prevent rendering until redirection is complete
   }
 
   return (
@@ -39,5 +41,5 @@ export default function DashboardLayout({
         <main className="flex w-full flex-col overflow-hidden py-6">{children}</main>
       </div>
     </div>
-  )
+  );
 }

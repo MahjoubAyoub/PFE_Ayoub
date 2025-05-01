@@ -4,7 +4,7 @@ const auth = require('../middleware/authMiddleware');
 const shareController = require('../controllers/shareController');
 
 // All routes require authentication
-router.use(auth);
+router.use(auth.protect);
 
 router.post('/design/:designId', shareController.shareDesign);
 router.get('/shared-with-me', shareController.getSharedDesigns);

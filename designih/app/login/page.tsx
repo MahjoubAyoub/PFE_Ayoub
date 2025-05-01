@@ -6,6 +6,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
+import { setCookie } from "nookies" // Import nookies for cookie management
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,50 +20,52 @@ export default function LoginPage() {
   const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     if (!email || !password) {
-      setError('Please fill in all fields')
-      setIsLoading(false)
-      return
+      setError("Please fill in all fields");
+      setIsLoading(false);
+      return;
     }
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      })
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (result?.error) {
-        // Handle specific error cases
-        switch (result.error) {
-          case 'Invalid credentials':
-            setError('Invalid email or password')
-            break
-          case 'User not found':
-            setError('No account found with this email')
-            break
-          default:
-            setError(result.error || 'Failed to sign in')
-        }
-        setIsLoading(false)
-        return
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Failed to log in");
+        setIsLoading(false);
+        return;
       }
 
-      router.push("/dashboard")
-    } catch (error: any) {
-      console.error('Login error:', error)
-      setError('An unexpected error occurred. Please try again.')
-      setIsLoading(false)
+      // Store the token in cookies
+      setCookie(null, "token", data.token, {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        path: "/", // Make the cookie accessible across the app
+      });
+
+      router.push("/dashboard"); // Redirect to the dashboard
+      setIsLoading(false);
+      console.log("Login successful:", data);
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleOAuthSignIn = async (provider: string) => {
     try {
