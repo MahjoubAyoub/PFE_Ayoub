@@ -12,18 +12,16 @@ export const metadata: Metadata = {
   generator: 'v0.dev'
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <Providers>
-          {children}
-        </Providers>
-      </body>
+    <html lang="en">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto&family=Open+Sans&family=Poppins&family=Montserrat&family=Playfair+Display&family=Oswald&family=Raleway&family=Merriweather&family=Nunito&family=Quicksand&family=Ubuntu&family=PT+Sans&family=Source+Sans+Pro&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>{children}</body>
     </html>
-  )
+  );
 }
