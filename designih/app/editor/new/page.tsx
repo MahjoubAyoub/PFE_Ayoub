@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Stage, Layer, Rect, Text, Circle, RegularPolygon, Transformer, Star, Ellipse } from "react-konva"
+import { Stage, Layer, Rect, Text, Circle, RegularPolygon, Transformer, Star, Ellipse, Image } from "react-konva"
 import { EditorHeader } from "@/components/editor-header"
 import { EditorSidebar } from "@/components/editor-sidebar"
 import { EditorElementSettings } from "@/components/editor-element-settings"
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { useEditorState } from "@/hooks/use-editor-state"
 import { EditorElement } from "@/types/editor"
 import Konva from "konva"
+import useImage from "use-image"
 
 export default function NewEditorPage() {
   const router = useRouter()
@@ -26,20 +27,22 @@ export default function NewEditorPage() {
     scale: 1,
     x: 0,
     y: 0,
-    width: Math.min(window.innerWidth - 400, 1200),
-    height: Math.min(window.innerHeight - 120, 800)
+    width: typeof window !== "undefined" ? Math.min(window.innerWidth - 400, 1200) : 1200,
+    height: typeof window !== "undefined" ? Math.min(window.innerHeight - 120, 800) : 800
   });
 
   useEffect(() => {
-    const handleResize = () => {
-      setStageConfig(prev => ({
-        ...prev,
-        width: Math.min(window.innerWidth - 400, 1200),
-        height: Math.min(window.innerHeight - 120, 800)
-      }));
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    if (typeof window !== "undefined") {
+      const handleResize = () => {
+        setStageConfig(prev => ({
+          ...prev,
+          width: Math.min(window.innerWidth - 400, 1200),
+          height: Math.min(window.innerHeight - 120, 800)
+        }));
+      };
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
   }, []);
 
   const handleWheel = (e: any) => {
@@ -177,8 +180,10 @@ export default function NewEditorPage() {
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    if (typeof window !== "undefined") {
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    }
   }, [undo, redo])
 
   const selectedElement = elements.find((el) => el.id === selectedId)
@@ -332,6 +337,54 @@ export default function NewEditorPage() {
                             onTransformEnd={(e) => handleTransformEnd(e, element.id)}
                           />
                         )
+                      case "image":
+                        const [image, status] = useImage(element.src || "");
+
+                        // Handle loading or error states for the image
+                        if (status === "loading") {
+                          return (
+                            <Text
+                              key={element.id}
+                              id={element.id}
+                              x={element.x}
+                              y={element.y}
+                              text="Loading..."
+                              fontSize={16}
+                              fill="gray"
+                            />
+                          );
+                        }
+
+                        if (status === "failed") {
+                          return (
+                            <Text
+                              key={element.id}
+                              id={element.id}
+                              x={element.x}
+                              y={element.y}
+                              text="Failed to load image"
+                              fontSize={16}
+                              fill="red"
+                            />
+                          );
+                        }
+
+                        return (
+                          <Image
+                            key={element.id}
+                            id={element.id}
+                            x={element.x}
+                            y={element.y}
+                            image={image}
+                            width={element.width || 100}
+                            height={element.height || 100}
+                            draggable={element.draggable}
+                            onClick={() => handleSelect(element.id)}
+                            onTap={() => handleSelect(element.id)}
+                            onDragEnd={(e) => handleDragEnd(e, element.id)}
+                            onTransformEnd={(e) => handleTransformEnd(e, element.id)}
+                          />
+                        );
                       default:
                         return null;
                     }
